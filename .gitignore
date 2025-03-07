@@ -1,4 +1,6 @@
 additional/
+flutter_routes/
+flutter_named_routes/
 
 # See https://www.dartlang.org/guides/libraries/private-files
 
