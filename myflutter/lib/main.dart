@@ -5,6 +5,7 @@ import 'package:myflutter/pages/home_page.dart';
 import 'package:myflutter/pages/add_page.dart';
 import 'package:myflutter/pages/edit_page.dart';
 import 'package:myflutter/pages/view_page.dart';
+import 'package:myflutter/pages/admin_page.dart';
 import 'package:myflutter/models/peak.dart';
 
 void main() async {
@@ -15,6 +16,7 @@ void main() async {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
+        '/admin': (context) => const AdminPage(),
         '/': (context) => const HomePage(),
         '/add': (context) => const AddPage(),
         '/edit':

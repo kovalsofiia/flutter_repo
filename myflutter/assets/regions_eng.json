@@ -1,0 +1,275 @@
+{
+    "regions": [
+      {
+        "name": "Cherkaska Oblast",
+        "districts": [
+          "Cherkaskyi",
+          "Zvenyhorodskyi",
+          "Umanskyi",
+          "Zolotonoiski"
+        ]
+      },
+      {
+        "name": "Chernihivska Oblast",
+        "districts": [
+          "Chernihivskyi",
+          "Nizhynskyi",
+          "Novhorod-Siverskyi",
+          "Pryluky"
+        ]
+      },
+      {
+        "name": "Chernivetska Oblast",
+        "districts": [
+          "Chernivetskyi",
+          "Dnistrovskyi",
+          "Vyzhnytskyi"
+        ]
+      },
+      {
+        "name": "Dnipropetrovska Oblast",
+        "districts": [
+          "Dniprovskyi",
+          "Kamianskyi",
+          "Kryvorizkyi",
+          "Nikopolskyi",
+          "Novomoskovskyi",
+          "Pavlohradskyi",
+          "Synelnykivskyi"
+        ]
+      },
+      {
+        "name": "Donetska Oblast",
+        "districts": [
+          "Bakhmutskyi",
+          "Donetskyi",
+          "Horlivskyi",
+          "Kalmiuskyi",
+          "Kramatorskyi",
+          "Mariupolskyi",
+          "Pokrovskyi",
+          "Volnovaskyi"
+        ]
+      },
+      {
+        "name": "Ivano-Frankivska Oblast",
+        "districts": [
+          "Ivano-Frankivskyi",
+          "Kaluskyi",
+          "Kolomyiskyi",
+          "Nadvirnyanskyi"
+        ]
+      },
+      {
+        "name": "Kharkivska Oblast",
+        "districts": [
+          "Bohodukhivskyi",
+          "Chuhuivskyi",
+          "Iziumskyi",
+          "Kharkivskyi",
+          "Krasnohradskyi",
+          "Kupianskyi",
+          "Lozivskyi"
+        ]
+      },
+      {
+        "name": "Khersonska Oblast",
+        "districts": [
+          "Beryslavskyi",
+          "Henicheskyi",
+          "Kakhovskyi",
+          "Khersonskyi",
+          "Skadovskyi"
+        ]
+      },
+      {
+        "name": "Khmelnytska Oblast",
+        "districts": [
+          "Kamianets-Podilskyi",
+          "Khmelnytskyi",
+          "Shepetivskyi"
+        ]
+      },
+      {
+        "name": "Kyivska Oblast",
+        "districts": [
+          "Bila Tserkva",
+          "Boryspilskyi",
+          "Brovarskyi",
+          "Bucha",
+          "Fastivskyi",
+          "Obukhivskyi",
+          "Vyshhorodskyi"
+        ]
+      },
+      {
+        "name": "Kirovohradska Oblast",
+        "districts": [
+          "Holovanivskyi",
+          "Kropyvnytskyi",
+          "Novoukrainskyi",
+          "Oleksandriiskyi"
+        ]
+      },
+      {
+        "name": "Luhanska Oblast",
+        "districts": [
+          "Alchevskyi",
+          "Dovzhanskyi",
+          "Luhanskyi",
+          "Sievierodonetskyi",
+          "Starobilskyi",
+          "Svatovskyi",
+          "Shchastynskyi"
+        ]
+      },
+      {
+        "name": "Lvivska Oblast",
+        "districts": [
+          "Chervonohradskyi",
+          "Drohobytskyi",
+          "Lvivskyi",
+          "Sambirskyi",
+          "Stryiskyi",
+          "Yavorivskyi",
+          "Zolochivskyi"
+        ]
+      },
+      {
+        "name": "Mykolaivska Oblast",
+        "districts": [
+          "Bashtanskyi",
+          "Mykolaivskyi",
+          "Pervomaiskyi",
+          "Voznesenskyi"
+        ]
+      },
+      {
+        "name": "Odeska Oblast",
+        "districts": [
+          "Berezivskyi",
+          "Bilhorod-Dnistrovskyi",
+          "Bolhradskyi",
+          "Izmailskyi",
+          "Odeskyi",
+          "Podilskyi",
+          "Rozdilnianskyi"
+        ]
+      },
+      {
+        "name": "Poltavska Oblast",
+        "districts": [
+          "Kremenchutskyi",
+          "Lubenskyi",
+          "Myrhorodskyi",
+          "Poltavskyi"
+        ]
+      },
+      {
+        "name": "Rivnenska Oblast",
+        "districts": [
+          "Dubenskyi",
+          "Rivne",
+          "Sarnenskyi",
+          "Varashskyi"
+        ]
+      },
+      {
+        "name": "Sumska Oblast",
+        "districts": [
+          "Konotopskyi",
+          "Okhtyrskyi",
+          "Romenskyi",
+          "Shostkinskyi",
+          "Sumskyi"
+        ]
+      },
+      {
+        "name": "Ternopilska Oblast",
+        "districts": [
+          "Chortkivskyi",
+          "Kremenetskyi",
+          "Ternopilskyi"
+        ]
+      },
+      {
+        "name": "Vinnytska Oblast",
+        "districts": [
+          "Haisynskyi",
+          "Khmilnytskyi",
+          "Mohyliv-Podilskyi",
+          "Tulchynskyi",
+          "Vinnytskyi"
+        ]
+      },
+      {
+        "name": "Volynska Oblast",
+        "districts": [
+          "Kamin-Kashyrskyi",
+          "Kovel",
+          "Lutskyi",
+          "Volodymyrskyi"
+        ]
+      },
+      {
+        "name": "Zakarpatska Oblast",
+        "districts": [
+          "Berehivskyi",
+          "Khustskyi",
+          "Mukachivskyi",
+          "Rakhivskyi",
+          "Tiachivskyi",
+          "Uzhhorodskyi"
+        ]
+      },
+      {
+        "name": "Zaporizka Oblast",
+        "districts": [
+          "Berdianskyi",
+          "Melitopolskyi",
+          "Polohivskyi",
+          "Vasylivskyi",
+          "Zaporizkyi"
+        ]
+      },
+      {
+        "name": "Zhytomyrska Oblast",
+        "districts": [
+          "Berdychivskyi",
+          "Korostenskyi",
+          "Novohrad-Volynskyi",
+          "Zhytomyrskyi"
+        ]
+      },
+      {
+        "name": "Kyiv",
+        "districts": [
+          "Kyiv City"
+        ]
+      },
+      {
+        "name": "Sevastopol",
+        "districts": [
+          "Sevastopol City"
+        ]
+      },
+      {
+        "name": "Autonomous Republic of Crimea",
+        "districts": [
+          "Bakhchysaraiskyi",
+          "Bilohirskyi",
+          "Dzhankoiskyi",
+          "Kerchenskyi",
+          "Krasnoperekopskyi",
+          "Leninskyi",
+          "Nyznohirskyi",
+          "Pervomaiskyi",
+          "Rozdolnenskyi",
+          "Saky",
+          "Simferopolskyi",
+          "Sudakskyi",
+          "Yalta"
+        ]
+      }
+    ]
+  }
