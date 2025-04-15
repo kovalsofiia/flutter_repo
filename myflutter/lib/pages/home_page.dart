@@ -14,9 +14,7 @@ class _HomePageState extends State<HomePage> {
   List<Peak> popularPeaks = [];
   final dbOperations = DbOperations.fromSettings();
   late bool isLoading;
-
   String? _sortValue;
-
   bool showPopular = false;
 
   @override
@@ -63,10 +61,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void loadPopular() async {
-    await loadPopularPeaks();
+  void toggleView() {
     setState(() {
-      showPopular = true; // Set showPopular to true
+      showPopular = !showPopular; // Перемикаємо стан
     });
   }
 
@@ -137,8 +134,8 @@ class _HomePageState extends State<HomePage> {
             onChanged: (value) {
               setState(() {
                 _sortValue = value;
-                sortPeaks(); // Сортування списку peaks
-                sortPopularPeaks(); // Сортування списку popular peaks
+                sortPeaks();
+                sortPopularPeaks();
               });
             },
           ),
@@ -152,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(8.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.8, // Adjust as needed
+                    childAspectRatio: 0.8,
                     crossAxisSpacing: 8.0,
                     mainAxisSpacing: 8.0,
                   ),
@@ -238,11 +235,9 @@ class _HomePageState extends State<HomePage> {
                 ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          loadPopular();
-        },
-        label: const Text('View Popular Peaks'),
-        icon: const Icon(Icons.star),
+        onPressed: toggleView,
+        label: Text(showPopular ? 'View All Peaks' : 'View Popular Peaks'),
+        icon: Icon(showPopular ? Icons.list : Icons.star),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
