@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/api/db_op.dart';
 
@@ -36,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     List<Peak> loadedPeaks = data.map((map) => Peak.fromMap(map)).toList();
     setState(() {
       popularPeaks = loadedPeaks;
-      sortPopularPeaks(); // Сортування після завантаження
+      sortPopularPeaks();
       isLoading = false;
     });
   }
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> {
     List<Peak> loadedPeaks = data.map((map) => Peak.fromMap(map)).toList();
     setState(() {
       peaks = loadedPeaks;
-      sortPeaks(); // Сортування після завантаження
+      sortPeaks();
       isLoading = false;
       showPopular = false;
     });
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
 
   void toggleView() {
     setState(() {
-      showPopular = !showPopular; // Перемикаємо стан
+      showPopular = !showPopular;
     });
   }
 
@@ -107,19 +108,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
           onTap: () {
             loadPeaks();
           },
-          child: Text('Peaks'),
+          child: const Text('Peaks'),
         ),
         actions: [
           DropdownButton<String>(
             value: _sortValue,
-            hint: Text('Sort'),
-            items: [
+            hint: const Text('Sort'),
+            items: const [
               DropdownMenuItem(child: Text('A-Z'), value: 'a-z'),
               DropdownMenuItem(child: Text('Z-A'), value: 'z-a'),
               DropdownMenuItem(
@@ -208,22 +210,66 @@ class _HomePageState extends State<HomePage> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (peak.isPopular)
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 4.0),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                                  const SizedBox(height: 4.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Позначка "Popular"
+                                      if (peak.isPopular)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.yellow[200],
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Popular',
+                                            style: TextStyle(fontSize: 10),
+                                          ),
+                                        ),
+                                      // Іконка сердечка
+                                      StreamBuilder<bool>(
+                                        stream: dbOperations.isFavourite(
+                                          peak.key!,
+                                        ),
+                                        initialData: false,
+                                        builder: (context, snapshot) {
+                                          final isFavourite =
+                                              snapshot.data ?? false;
+                                          return IconButton(
+                                            icon: Icon(
+                                              isFavourite
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
+                                              color:
+                                                  isFavourite
+                                                      ? Colors.red[400]
+                                                      : Colors.grey,
+                                              size: 20,
+                                            ),
+                                            onPressed: () {
+                                              if (!isLoggedIn) {
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  '/user_page',
+                                                );
+                                                return;
+                                              }
+                                              dbOperations.toggleFavourite(
+                                                peak.key!,
+                                              );
+                                            },
+                                          );
+                                        },
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.yellow[200],
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Text(
-                                        'Popular',
-                                        style: TextStyle(fontSize: 10),
-                                      ),
-                                    ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),

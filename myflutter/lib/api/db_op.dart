@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DbOperations {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -58,5 +59,57 @@ class DbOperations {
       data['key'] = doc.id;
       return data;
     }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> loadByFavouriteTag() async {
+    QuerySnapshot querySnapshot =
+        await _firestore
+            .collection(collectionPath)
+            .where('isFavourite', isEqualTo: true)
+            .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data() as Map<String, dynamic>;
+      data['key'] = doc.id;
+      return data;
+    }).toList();
+  }
+
+  // Перевірка, чи вершина є улюбленою для поточного користувача
+  Stream<bool> isFavourite(String peakId) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Stream.value(false);
+    }
+    return _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('favourites')
+        .doc(peakId)
+        .snapshots()
+        .map((snapshot) => snapshot.exists);
+  }
+
+  // Перемикання стану улюбленої вершини
+  Future<void> toggleFavourite(String peakId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    final favouriteRef = _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('favourites')
+        .doc(peakId);
+
+    final isFav = await favouriteRef.get().then((snapshot) => snapshot.exists);
+    if (isFav) {
+      await favouriteRef.delete();
+    } else {
+      await favouriteRef.set({
+        'peakId': peakId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    }
   }
 }

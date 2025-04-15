@@ -7,6 +7,7 @@ import 'package:myflutter/pages/view_page.dart';
 import 'package:myflutter/pages/admin_page.dart';
 import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/pages/main_screen.dart';
+import 'package:myflutter/pages/user_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Додано для веб-платформ
@@ -27,6 +28,7 @@ void main() async {
             (context) => DetailPage(
               peak: ModalRoute.of(context)!.settings.arguments as Peak,
             ),
+        '/user_page': (context) => const UserPage(),
       },
     ),
   );
