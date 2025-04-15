@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
     List<Peak> loadedPeaks = data.map((map) => Peak.fromMap(map)).toList();
     setState(() {
       popularPeaks = loadedPeaks;
+      sortPopularPeaks(); // Сортування після завантаження
       isLoading = false;
     });
   }
@@ -46,11 +47,11 @@ class _HomePageState extends State<HomePage> {
     List<Map<String, dynamic>> data =
         await dbOperations.readCollectionWithKeys();
     List<Peak> loadedPeaks = data.map((map) => Peak.fromMap(map)).toList();
-    loadedPeaks.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
     setState(() {
-      isLoading = false;
       peaks = loadedPeaks;
-      showPopular = false; // Set showPopular to false
+      sortPeaks(); // Сортування після завантаження
+      isLoading = false;
+      showPopular = false;
     });
     return loadedPeaks;
   }
@@ -67,6 +68,44 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       showPopular = true; // Set showPopular to true
     });
+  }
+
+  void sortPeaks() {
+    switch (_sortValue) {
+      case 'a-z':
+        peaks.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case 'z-a':
+        peaks.sort((a, b) => b.name.compareTo(a.name));
+        break;
+      case '0-1':
+        peaks.sort((a, b) => a.elevation.compareTo(b.elevation));
+        break;
+      case '1-0':
+        peaks.sort((a, b) => b.elevation.compareTo(a.elevation));
+        break;
+      default:
+        peaks.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
+    }
+  }
+
+  void sortPopularPeaks() {
+    switch (_sortValue) {
+      case 'a-z':
+        popularPeaks.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case 'z-a':
+        popularPeaks.sort((a, b) => b.name.compareTo(a.name));
+        break;
+      case '0-1':
+        popularPeaks.sort((a, b) => a.elevation.compareTo(b.elevation));
+        break;
+      case '1-0':
+        popularPeaks.sort((a, b) => b.elevation.compareTo(a.elevation));
+        break;
+      default:
+        popularPeaks.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
+    }
   }
 
   @override
@@ -98,22 +137,8 @@ class _HomePageState extends State<HomePage> {
             onChanged: (value) {
               setState(() {
                 _sortValue = value;
-                switch (_sortValue) {
-                  case 'a-z':
-                    peaks.sort((a, b) => a.name.compareTo(b.name));
-                    break;
-                  case 'z-a':
-                    peaks.sort((a, b) => b.name.compareTo(a.name));
-                    break;
-                  case '0-1':
-                    peaks.sort((a, b) => a.elevation.compareTo(b.elevation));
-                    break;
-                  case '1-0':
-                    peaks.sort((a, b) => b.elevation.compareTo(a.elevation));
-                    break;
-                  default: // Handle default sorting here
-                    peaks.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
-                }
+                sortPeaks(); // Сортування списку peaks
+                sortPopularPeaks(); // Сортування списку popular peaks
               });
             },
           ),
