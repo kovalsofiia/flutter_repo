@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/api/db_op.dart';
+import 'package:myflutter/services/auth_service.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -16,6 +17,9 @@ class _AdminPageState extends State<AdminPage> {
   String _searchQuery = '';
   String _sortColumn = ''; // Track the sorted column
   bool _sortAscending = true; // Track the sorting direction
+  final AuthService _authService = AuthService(); // Додаємо AuthService
+  bool _isAccessChecked = false; // Для перевірки доступу
+  bool _hasAccess = false; // Чи є доступ до адмін-панелі
 
   @override
   void initState() {
@@ -23,7 +27,44 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       isLoading = true;
     });
-    loadPeaks();
+    _checkAdminAccess(); // Перевіряємо доступ
+  }
+
+  Future<void> _checkAdminAccess() async {
+    final user = _authService.currentUser;
+    if (user == null) {
+      setState(() {
+        _isAccessChecked = true;
+        isLoading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please sign in to access the admin panel'),
+          ),
+        );
+      });
+      return;
+    }
+
+    final isAdmin = await _authService.isAdmin(user.uid);
+    setState(() {
+      _hasAccess = isAdmin;
+      _isAccessChecked = true;
+      isLoading = false;
+    });
+
+    if (!isAdmin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You do not have admin access')),
+        );
+      });
+    } else {
+      loadPeaks(); // Завантажуємо вершини тільки для адмінів
+    }
   }
 
   Future<List<Peak>> loadPeaks() async {
@@ -60,8 +101,18 @@ class _AdminPageState extends State<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isAccessChecked || isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (!_hasAccess) {
+      return const Scaffold(
+        body: Center(child: Text('Access Denied')),
+      ); // Не має спрацьовувати, бо перенаправлення вже відбулося
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text('Peaks Admin')),
+      appBar: AppBar(title: const Text('Peaks Admin')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -71,7 +122,7 @@ class _AdminPageState extends State<AdminPage> {
                 Expanded(
                   // Make search field smaller
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Search',
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 12,
@@ -86,22 +137,23 @@ class _AdminPageState extends State<AdminPage> {
                     },
                   ),
                 ),
-                SizedBox(width: 10), // Add spacing between search and button
+                const SizedBox(
+                  width: 10,
+                ), // Add spacing between search and button
                 IconButton(
-                  icon: Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                   onPressed: () {
                     navigateToAddPage();
                   },
                 ),
               ],
             ),
-
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildHeaderRow(),
             Expanded(
               child:
                   isLoading
-                      ? Center(child: CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator())
                       : ListView.builder(
                         itemCount: peaks.length,
                         itemBuilder: (context, index) {
@@ -122,7 +174,7 @@ class _AdminPageState extends State<AdminPage> {
         _buildHeaderCell('Name', () => _sortPeaks('name')),
         _buildHeaderCell('Elevation', () => _sortPeaks('elevation')),
         _buildHeaderCell('Location', null), // No sorting for location
-        Expanded(child: SizedBox()),
+        const Expanded(child: SizedBox()),
       ],
     );
   }
@@ -164,11 +216,11 @@ class _AdminPageState extends State<AdminPage> {
         _buildDataCell(peak.elevation.toString()),
         _buildDataCell(peak.location),
         IconButton(
-          icon: Icon(Icons.edit),
+          icon: const Icon(Icons.edit),
           onPressed: () => navigateToEditPage(peak),
         ),
         IconButton(
-          icon: Icon(Icons.delete),
+          icon: const Icon(Icons.delete),
           color: Colors.red,
           onPressed: () => removePeak(peak),
         ),

@@ -13,14 +13,38 @@ class _UserPageState extends State<UserPage> {
   final AuthService _authService = AuthService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoginMode = true; // true = логін, false = реєстрація
+  final _nameController = TextEditingController();
+  bool _isLoginMode = true;
   String? _errorMessage;
+  bool? _isAdmin;
+
+  @override
+  void initState() {
+    super.initState();
+    // Перевіряємо статус адміна після логіну
+    _checkAdminStatus();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final user = _authService.currentUser;
+    if (user != null) {
+      final isAdmin = await _authService.isAdmin(user.uid);
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    } else {
+      setState(() {
+        _isAdmin = false;
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -30,6 +54,7 @@ class _UserPageState extends State<UserPage> {
 
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+    final name = _nameController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       setState(() {
@@ -37,23 +62,33 @@ class _UserPageState extends State<UserPage> {
       });
       return;
     }
-
-    try {
-      User? user;
-      if (_isLoginMode) {
-        user = await _authService.signInWithEmail(email, password);
-      } else {
-        user = await _authService.signUpWithEmail(email, password);
-      }
-      if (user == null) {
-        setState(() {
-          _errorMessage = 'An error occurred. Please try again.';
-        });
-      }
-    } catch (e) {
+    if (!_isLoginMode && name.isEmpty) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = 'Please enter your name';
       });
+      return;
+    }
+
+    User? user;
+    if (_isLoginMode) {
+      user = await _authService.signInWithEmail(email, password);
+    } else {
+      user = await _authService.signUpWithEmail(
+        email,
+        password,
+        displayName: name,
+      );
+    }
+
+    if (user == null) {
+      setState(() {
+        _errorMessage =
+            _isLoginMode
+                ? 'Login failed. Check your credentials.'
+                : 'Registration failed. Try again.';
+      });
+    } else {
+      await _checkAdminStatus(); // Оновлюємо статус адміна після логіну
     }
   }
 
@@ -85,6 +120,15 @@ class _UserPageState extends State<UserPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (!_isLoginMode)
+                    TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  if (!_isLoginMode) const SizedBox(height: 8),
                   TextField(
                     controller: _emailController,
                     decoration: const InputDecoration(
@@ -120,6 +164,7 @@ class _UserPageState extends State<UserPage> {
                         _errorMessage = null;
                         _emailController.clear();
                         _passwordController.clear();
+                        _nameController.clear();
                       });
                     },
                     child: Text(
@@ -151,9 +196,20 @@ class _UserPageState extends State<UserPage> {
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 16),
+                if (_isAdmin == true)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/admin');
+                    },
+                    child: const Text('Open Admin Panel'),
+                  ),
+                const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () async {
                     await _authService.signOut();
+                    setState(() {
+                      _isAdmin = false; // Скидаємо статус адміна
+                    });
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(const SnackBar(content: Text('Signed out')));
