@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/api/db_op.dart';
-// import 'package:myflutter/pages/add_page.dart';
-// import 'package:myflutter/pages/edit_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -57,47 +55,6 @@ class _HomePageState extends State<HomePage> {
     return loadedPeaks;
   }
 
-  void removePeak(Peak peak) async {
-    await dbOperations.removeElement(peak.key!);
-    setState(() {
-      peaks.remove(peak);
-    });
-  }
-
-  // void navigateToAddPage() async {
-  //   bool result = await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => const AddPage()),
-  //   );
-  //   if (result == true) {
-  //     loadPeaks();
-  //   }
-  // }
-
-  // void navigateToEditPage(Peak peak) async {
-  //   bool result = await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => EditPage(peak: peak)),
-  //   );
-  //   if (result == true) {
-  //     loadPeaks();
-  //   }
-  // }
-
-  void navigateToAddPage() async {
-    var result = await Navigator.pushNamed(context, '/add');
-    if (result is bool && result == true) {
-      loadPeaks();
-    }
-  }
-
-  void navigateToEditPage(Peak peak) async {
-    var result = await Navigator.pushNamed(context, '/edit', arguments: peak);
-    if (result is bool && result == true) {
-      loadPeaks();
-    }
-  }
-
   void navigateToViewPage(Peak peak) async {
     var result = await Navigator.pushNamed(context, '/view', arguments: peak);
     if (result is bool && result == true) {
@@ -123,18 +80,6 @@ class _HomePageState extends State<HomePage> {
           child: Text('Peaks'),
         ),
         actions: [
-          ElevatedButton(
-            onPressed: () {
-              loadPopular();
-            },
-            child: Text('View Popular Peaks'),
-          ),
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              navigateToAddPage();
-            },
-          ),
           DropdownButton<String>(
             value: _sortValue,
             hint: Text('Sort'),
@@ -177,52 +122,88 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child:
             isLoading
-                ? CircularProgressIndicator()
-                : ListView.builder(
+                ? const CircularProgressIndicator()
+                : GridView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.8, // Adjust as needed
+                    crossAxisSpacing: 8.0,
+                    mainAxisSpacing: 8.0,
+                  ),
                   itemCount: showPopular ? popularPeaks.length : peaks.length,
                   itemBuilder: (context, index) {
-                    Peak peak =
+                    final Peak peak =
                         showPopular ? popularPeaks[index] : peaks[index];
-                    return Dismissible(
-                      key: Key(peak.key!),
-                      onDismissed: (direction) {
-                        removePeak(peak);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Peak removed')),
-                        );
-                      },
-                      child: ListTile(
-                        leading:
-                            peak.imagePath != null && peak.imagePath!.isNotEmpty
-                                ? Image.network(peak.imagePath!)
-                                : Image.asset('assets/default.png'),
-                        title: Text(peak.name),
-                        subtitle: Text('${peak.elevation} m, ${peak.location}'),
-                        onTap: () {
-                          navigateToViewPage(peak);
-                        },
-                        trailing: Row(
-                          // Wrap trailing widgets in a Row
-                          mainAxisSize: MainAxisSize.min,
+                    return Card(
+                      child: InkWell(
+                        onTap: () => navigateToViewPage(peak),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (peak
-                                .isPopular) // Conditionally show the yellow box
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.yellow,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text("Popular"),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child:
+                                    peak.imagePath != null &&
+                                            peak.imagePath!.isNotEmpty
+                                        ? Image.network(
+                                          peak.imagePath!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            return Image.asset(
+                                              'assets/default.png',
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
+                                        )
+                                        : Image.asset(
+                                          'assets/default.png',
+                                          fit: BoxFit.cover,
+                                        ),
                               ),
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                navigateToEditPage(peak);
-                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    peak.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    '${peak.elevation} m',
+                                    style: const TextStyle(fontSize: 12),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (peak.isPopular)
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 4.0),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.yellow[200],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        'Popular',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -231,6 +212,14 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          loadPopular();
+        },
+        label: const Text('View Popular Peaks'),
+        icon: const Icon(Icons.star),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
