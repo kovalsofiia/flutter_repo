@@ -24,10 +24,17 @@ void main() async {
             (context) => EditPage(
               peak: ModalRoute.of(context)!.settings.arguments as Peak,
             ),
-        '/view':
-            (context) => DetailPage(
-              peak: ModalRoute.of(context)!.settings.arguments as Peak,
-            ),
+        '/view': (context) {
+          final peak = ModalRoute.of(context)!.settings.arguments as Peak;
+          return DetailPage(
+            peak: peak,
+            onLoginNeeded: () {
+              // Припускаємо, що MainScreen керує вкладками
+              Navigator.pushNamed(context, '/'); // Повернення до MainScreen
+              // Або зміна вкладки вручну, якщо потрібно
+            },
+          );
+        },
         '/user_page': (context) => const UserPage(),
       },
     ),

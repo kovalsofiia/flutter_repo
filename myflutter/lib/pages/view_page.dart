@@ -1,56 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myflutter/models/peak.dart';
+import 'package:myflutter/api/db_op.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final Peak peak;
+  final VoidCallback onLoginNeeded;
 
-  DetailPage({required this.peak});
+  const DetailPage({Key? key, required this.peak, required this.onLoginNeeded})
+    : super(key: key);
+
+  @override
+  _DetailPageState createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  final dbOperations = DbOperations.fromSettings();
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+
     return Scaffold(
-      appBar: AppBar(title: Text(peak.name)),
+      appBar: AppBar(title: Text(widget.peak.name)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            peak.imagePath != null && peak.imagePath!.isNotEmpty
-                ? Image.network(peak.imagePath!, height: 300, fit: BoxFit.cover)
-                : Container(
-                  height: 300,
-                  color: Colors.grey[300],
-                  child: Center(
-                    child: Icon(Icons.image, size: 50, color: Colors.grey[600]),
+            Stack(
+              children: [
+                widget.peak.imagePath != null &&
+                        widget.peak.imagePath!.isNotEmpty
+                    ? Image.network(
+                      widget.peak.imagePath!,
+                      height: 300,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 300,
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: Icon(
+                              Icons.image,
+                              size: 50,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                    : Container(
+                      height: 300,
+                      color: Colors.grey[300],
+                      child: Center(
+                        child: Icon(
+                          Icons.image,
+                          size: 50,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                // Іконка сердечка у верхньому правому куті
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: StreamBuilder<bool>(
+                    stream: dbOperations.isFavourite(widget.peak.key!),
+                    initialData: false,
+                    builder: (context, snapshot) {
+                      final isFavourite = snapshot.data ?? false;
+                      return IconButton(
+                        icon: Icon(
+                          isFavourite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavourite ? Colors.red[400] : Colors.grey,
+                          size: 24,
+                        ),
+                        onPressed: () {
+                          if (!isLoggedIn) {
+                            widget.onLoginNeeded();
+                            return;
+                          }
+                          dbOperations.toggleFavourite(widget.peak.key!);
+                        },
+                      );
+                    },
                   ),
                 ),
+              ],
+            ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Name: ${peak.name}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    'Name: ${widget.peak.name}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Elevation: ${peak.elevation} m',
-                    style: TextStyle(fontSize: 16),
+                    'Elevation: ${widget.peak.elevation} m',
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Location: ${peak.location}',
-                    style: TextStyle(fontSize: 16),
+                    'Location: ${widget.peak.location}',
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Description: ${peak.description}',
-                    style: TextStyle(fontSize: 16),
+                    'Description: ${widget.peak.description}',
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Popular: ${peak.isPopular ? 'Yes' : 'No'}',
-                    style: TextStyle(fontSize: 16),
+                    'Popular: ${widget.peak.isPopular ? 'Yes' : 'No'}',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
