@@ -58,7 +58,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void navigateToViewPage(Peak peak) async {
-    var result = await Navigator.pushNamed(context, '/view', arguments: peak);
+    var result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                DetailPage(peak: peak, onLoginNeeded: widget.onLoginNeeded),
+      ),
+    );
     if (result is bool && result == true) {
       loadPeaks();
     }

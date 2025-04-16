@@ -73,7 +73,7 @@ class _DetailPageState extends State<DetailPage> {
                         icon: Icon(
                           isFavourite ? Icons.favorite : Icons.favorite_border,
                           color: isFavourite ? Colors.red[400] : Colors.grey,
-                          size: 24,
+                          size: 20,
                         ),
                         onPressed: () {
                           if (!isLoggedIn) {
