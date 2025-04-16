@@ -11,7 +11,23 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  final List<Widget> _pages = [HomePage(), SearchPage(), UserPage()];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomePage(
+        onLoginNeeded: () {
+          setState(() {
+            _currentIndex = 2; // Перемикаємося на UserPage
+          });
+        },
+      ),
+      const SearchPage(),
+      const UserPage(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'User'),

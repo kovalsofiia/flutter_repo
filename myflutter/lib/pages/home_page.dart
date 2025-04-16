@@ -4,7 +4,8 @@ import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/api/db_op.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final VoidCallback onLoginNeeded; // Додаємо зворотний виклик
+  const HomePage({Key? key, required this.onLoginNeeded}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -254,11 +255,16 @@ class _HomePageState extends State<HomePage> {
                                               size: 20,
                                             ),
                                             onPressed: () {
+                                              // if (!isLoggedIn) {
+                                              //   Navigator.pushNamed(
+                                              //     context,
+                                              //     '/user_page',
+                                              //   );
+                                              //   return;
+                                              // }
                                               if (!isLoggedIn) {
-                                                Navigator.pushNamed(
-                                                  context,
-                                                  '/user_page',
-                                                );
+                                                widget
+                                                    .onLoginNeeded(); // Використовуємо зворотний виклик
                                                 return;
                                               }
                                               dbOperations.toggleFavourite(
