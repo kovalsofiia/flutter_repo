@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/api/db_op.dart';
+import 'package:myflutter/pages/view_page.dart'; // Імпортуємо DetailPage
 
 class HomePage extends StatefulWidget {
-  final VoidCallback onLoginNeeded; // Додаємо зворотний виклик
+  final VoidCallback onLoginNeeded;
   const HomePage({Key? key, required this.onLoginNeeded}) : super(key: key);
 
   @override
@@ -167,31 +168,85 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child:
-                                    peak.imagePath != null &&
-                                            peak.imagePath!.isNotEmpty
-                                        ? Image.network(
-                                          peak.imagePath!,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return Image.asset(
+                              child: Stack(
+                                children: [
+                                  // Зображення
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child:
+                                        peak.imagePath != null &&
+                                                peak.imagePath!.isNotEmpty
+                                            ? Image.network(
+                                              peak.imagePath!,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) {
+                                                return Image.asset(
+                                                  'assets/default.png',
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                            )
+                                            : Image.asset(
                                               'assets/default.png',
                                               fit: BoxFit.cover,
+                                            ),
+                                  ),
+                                  // Зірочка та сердечко у верхньому правому куті
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (peak.isPopular)
+                                          Icon(
+                                            Icons.star,
+                                            color: Colors.yellow[700],
+                                            size: 20,
+                                          ),
+                                        const SizedBox(width: 8),
+                                        StreamBuilder<bool>(
+                                          stream: dbOperations.isFavourite(
+                                            peak.key!,
+                                          ),
+                                          initialData: false,
+                                          builder: (context, snapshot) {
+                                            final isFavourite =
+                                                snapshot.data ?? false;
+                                            return IconButton(
+                                              icon: Icon(
+                                                isFavourite
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color:
+                                                    isFavourite
+                                                        ? Colors.red[400]
+                                                        : Colors.grey,
+                                                size: 20,
+                                              ),
+                                              onPressed: () {
+                                                if (!isLoggedIn) {
+                                                  widget.onLoginNeeded();
+                                                  return;
+                                                }
+                                                dbOperations.toggleFavourite(
+                                                  peak.key!,
+                                                );
+                                              },
                                             );
                                           },
-                                        )
-                                        : Image.asset(
-                                          'assets/default.png',
-                                          fit: BoxFit.cover,
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            // Назва та висота
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -210,71 +265,6 @@ class _HomePageState extends State<HomePage> {
                                     style: const TextStyle(fontSize: 12),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4.0),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // Позначка "Popular"
-                                      if (peak.isPopular)
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.yellow[200],
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Popular',
-                                            style: TextStyle(fontSize: 10),
-                                          ),
-                                        ),
-                                      // Іконка сердечка
-                                      StreamBuilder<bool>(
-                                        stream: dbOperations.isFavourite(
-                                          peak.key!,
-                                        ),
-                                        initialData: false,
-                                        builder: (context, snapshot) {
-                                          final isFavourite =
-                                              snapshot.data ?? false;
-                                          return IconButton(
-                                            icon: Icon(
-                                              isFavourite
-                                                  ? Icons.favorite
-                                                  : Icons.favorite_border,
-                                              color:
-                                                  isFavourite
-                                                      ? Colors.red[400]
-                                                      : Colors.grey,
-                                              size: 20,
-                                            ),
-                                            onPressed: () {
-                                              // if (!isLoggedIn) {
-                                              //   Navigator.pushNamed(
-                                              //     context,
-                                              //     '/user_page',
-                                              //   );
-                                              //   return;
-                                              // }
-                                              if (!isLoggedIn) {
-                                                widget
-                                                    .onLoginNeeded(); // Використовуємо зворотний виклик
-                                                return;
-                                              }
-                                              dbOperations.toggleFavourite(
-                                                peak.key!,
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
                                   ),
                                 ],
                               ),
