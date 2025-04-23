@@ -237,13 +237,25 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               onPressed: () {
                                                 if (!isLoggedIn) {
-                                                  widget.onLoginNeeded();
+                                                  Navigator.pushNamed(
+                                                    context,
+                                                    '/user_page',
+                                                  );
                                                   return;
                                                 }
                                                 dbOperations.toggleFavourite(
                                                   peak.key!,
                                                 );
                                               },
+                                              // onPressed: () {
+                                              //   if (!isLoggedIn) {
+                                              //     widget.onLoginNeeded();
+                                              //     return;
+                                              //   }
+                                              //   dbOperations.toggleFavourite(
+                                              //     peak.key!,
+                                              //   );
+                                              // },
                                             );
                                           },
                                         ),

@@ -77,11 +77,18 @@ class _DetailPageState extends State<DetailPage> {
                         ),
                         onPressed: () {
                           if (!isLoggedIn) {
-                            widget.onLoginNeeded();
+                            Navigator.pushNamed(context, '/user_page');
                             return;
                           }
                           dbOperations.toggleFavourite(widget.peak.key!);
                         },
+                        // onPressed: () {
+                        //   if (!isLoggedIn) {
+                        //     widget.onLoginNeeded();
+                        //     return;
+                        //   }
+                        //   dbOperations.toggleFavourite(widget.peak.key!);
+                        // },
                       );
                     },
                   ),

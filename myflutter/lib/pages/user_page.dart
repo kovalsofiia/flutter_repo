@@ -89,6 +89,7 @@ class _UserPageState extends State<UserPage> {
       });
     } else {
       await _checkAdminStatus(); // Оновлюємо статус адміна після логіну
+      Navigator.pop(context); // Повернення на попередню сторінку
     }
   }
 
