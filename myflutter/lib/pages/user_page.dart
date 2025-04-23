@@ -126,119 +126,165 @@ class _UserPageState extends State<UserPage> {
 
           if (user == null) {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _isLoginMode ? 'Sign In' : 'Sign Up',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (!_isLoginMode)
-                    TextField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _isLoginMode ? 'Sign In' : 'Sign Up',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  if (!_isLoginMode) const SizedBox(height: 8),
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
+                      const SizedBox(height: 12),
+                      if (!_isLoginMode)
+                        TextField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            hintText: 'Name',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (!_isLoginMode) const SizedBox(height: 8),
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          hintText: 'Email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(
+                          hintText: 'Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
+                        ),
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 12),
+                      if (_errorMessage != null)
+                        AnimatedOpacity(
+                          opacity: _errorMessage != null ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(_isLoginMode ? 'Sign In' : 'Sign Up'),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _isLoginMode = !_isLoginMode;
+                            _errorMessage = null;
+                            _emailController.clear();
+                            _passwordController.clear();
+                            _nameController.clear();
+                          });
+                        },
+                        child: Text(
+                          _isLoginMode
+                              ? 'Need an account? Sign Up'
+                              : 'Already have an account? Sign In',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 16),
-                  if (_errorMessage != null)
-                    Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: _submit,
-                    child: Text(_isLoginMode ? 'Sign In' : 'Sign Up'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _isLoginMode = !_isLoginMode;
-                        _errorMessage = null;
-                        _emailController.clear();
-                        _passwordController.clear();
-                        _nameController.clear();
-                      });
-                    },
-                    child: Text(
-                      _isLoginMode
-                          ? 'Need an account? Sign Up'
-                          : 'Already have an account? Sign In',
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           }
 
           return SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     user.displayName ?? user.email ?? 'User',
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     user.email ?? 'No Email',
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   if (_isAdmin == true)
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/admin');
-                      },
-                      child: const Text('Open Admin Panel'),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pushNamed(context, '/admin'),
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text('Open Admin Panel'),
+                      ),
                     ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _authService.signOut();
-                      setState(() {
-                        _isAdmin = false;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Signed out')),
-                      );
-                    },
-                    child: const Text('Sign Out'),
+                  if (_isAdmin == true) const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _authService.signOut();
+                        setState(() {
+                          _isAdmin = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Signed out')),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Sign Out'),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
                     'Favourite Peaks',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   StreamBuilder<List<Map<String, dynamic>>>(
@@ -249,10 +295,10 @@ class _UserPageState extends State<UserPage> {
                       }
                       if (snapshot.hasError) {
                         return const Padding(
-                          padding: EdgeInsets.all(16.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Text(
                             'Failed to load favourites',
-                            style: TextStyle(fontSize: 16, color: Colors.red),
+                            style: TextStyle(fontSize: 14, color: Colors.red),
                           ),
                         );
                       }
@@ -263,27 +309,44 @@ class _UserPageState extends State<UserPage> {
                               .toList();
                       if (favouritePeaks.isEmpty) {
                         return const Padding(
-                          padding: EdgeInsets.all(16.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Text(
                             'No favourite peaks yet',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                         );
                       }
-                      return ListView.builder(
+                      return ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: favouritePeaks.length,
                         itemBuilder: (context, index) {
                           final peak = favouritePeaks[index];
-                          return ListTile(
-                            title: Text(
-                              peak.name,
-                              style: const TextStyle(fontSize: 16),
+                          return AnimatedOpacity(
+                            opacity: 1.0,
+                            duration: Duration(
+                              milliseconds: 200 + (index * 100),
                             ),
-                            onTap: () => navigateToDetailPage(peak),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 0,
+                              ),
+                              title: Text(
+                                peak.name,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              trailing: const Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              onTap: () => navigateToDetailPage(peak),
+                            ),
                           );
                         },
+                        separatorBuilder:
+                            (context, index) =>
+                                Divider(color: Colors.grey[300], height: 1),
                       );
                     },
                   ),
