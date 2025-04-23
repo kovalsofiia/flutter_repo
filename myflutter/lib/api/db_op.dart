@@ -61,17 +61,28 @@ class DbOperations {
     }).toList();
   }
 
-  Future<List<Map<String, dynamic>>> loadByFavouriteTag() async {
-    QuerySnapshot querySnapshot =
-        await _firestore
-            .collection(collectionPath)
-            .where('isFavourite', isEqualTo: true)
-            .get();
-    return querySnapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      data['key'] = doc.id;
-      return data;
-    }).toList();
+  Stream<List<Map<String, dynamic>>> favouritePeaksStream(String userId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favourites')
+        .snapshots()
+        .asyncMap((snapshot) async {
+          List<String> peakIds = snapshot.docs.map((doc) => doc.id).toList();
+          List<Map<String, dynamic>> peaks = [];
+
+          for (String peakId in peakIds) {
+            final peakDoc = await FirebaseFirestore.instance
+                .collection('peaks')
+                .doc(peakId)
+                .get(GetOptions(source: Source.serverAndCache));
+            if (peakDoc.exists) {
+              peaks.add({'key': peakDoc.id, ...peakDoc.data()!});
+            }
+          }
+
+          return peaks;
+        });
   }
 
   // Перевірка, чи вершина є улюбленою для поточного користувача

@@ -76,16 +76,19 @@ class _HomePageState extends State<HomePage> {
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final query = _searchController.text.toLowerCase();
       setState(() {
-        filteredPeaks =
-            peaks.where((peak) {
-              return peak.name.toLowerCase().contains(query);
-            }).toList();
-        filteredPopularPeaks =
-            popularPeaks.where((peak) {
-              return peak.name.toLowerCase().contains(query);
-            }).toList();
-        sortPeaks();
-        sortPopularPeaks();
+        if (showPopular) {
+          filteredPopularPeaks =
+              popularPeaks
+                  .where((peak) => peak.name.toLowerCase().contains(query))
+                  .toList();
+          sortPopularPeaks();
+        } else {
+          filteredPeaks =
+              peaks
+                  .where((peak) => peak.name.toLowerCase().contains(query))
+                  .toList();
+          sortPeaks();
+        }
       });
     });
   }
@@ -112,42 +115,50 @@ class _HomePageState extends State<HomePage> {
   }
 
   void sortPeaks() {
-    switch (_sortValue) {
-      case 'a-z':
-        filteredPeaks.sort((a, b) => a.name.compareTo(b.name));
-        break;
-      case 'z-a':
-        filteredPeaks.sort((a, b) => b.name.compareTo(a.name));
-        break;
-      case '0-1':
-        filteredPeaks.sort((a, b) => a.elevation.compareTo(b.elevation));
-        break;
-      case '1-0':
-        filteredPeaks.sort((a, b) => b.elevation.compareTo(b.elevation));
-        break;
-      default:
-        filteredPeaks.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
+    if (!showPopular) {
+      switch (_sortValue) {
+        case 'a-z':
+          filteredPeaks.sort((a, b) => a.name.compareTo(b.name));
+          break;
+        case 'z-a':
+          filteredPeaks.sort((a, b) => b.name.compareTo(a.name));
+          break;
+        case '0-1':
+          filteredPeaks.sort((a, b) => a.elevation.compareTo(b.elevation));
+          break;
+        case '1-0':
+          filteredPeaks.sort((a, b) => b.elevation.compareTo(a.elevation));
+          break;
+        default:
+          filteredPeaks.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
+      }
     }
   }
 
   void sortPopularPeaks() {
-    switch (_sortValue) {
-      case 'a-z':
-        filteredPopularPeaks.sort((a, b) => a.name.compareTo(b.name));
-        break;
-      case 'z-a':
-        filteredPopularPeaks.sort((a, b) => b.name.compareTo(a.name));
-        break;
-      case '0-1':
-        filteredPopularPeaks.sort((a, b) => a.elevation.compareTo(b.elevation));
-        break;
-      case '1-0':
-        filteredPopularPeaks.sort((a, b) => b.elevation.compareTo(b.elevation));
-        break;
-      default:
-        filteredPopularPeaks.sort(
-          (a, b) => b.timestamp!.compareTo(a.timestamp!),
-        );
+    if (showPopular) {
+      switch (_sortValue) {
+        case 'a-z':
+          filteredPopularPeaks.sort((a, b) => a.name.compareTo(b.name));
+          break;
+        case 'z-a':
+          filteredPopularPeaks.sort((a, b) => b.name.compareTo(a.name));
+          break;
+        case '0-1':
+          filteredPopularPeaks.sort(
+            (a, b) => a.elevation.compareTo(b.elevation),
+          );
+          break;
+        case '1-0':
+          filteredPopularPeaks.sort(
+            (a, b) => b.elevation.compareTo(a.elevation),
+          );
+          break;
+        default:
+          filteredPopularPeaks.sort(
+            (a, b) => b.timestamp!.compareTo(a.timestamp!),
+          );
+      }
     }
   }
 

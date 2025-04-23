@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myflutter/services/auth_service.dart';
+import 'package:myflutter/api/db_op.dart';
+import 'package:myflutter/models/peak.dart';
+import 'package:myflutter/pages/view_page.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
@@ -10,6 +13,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  final dbOperations = DbOperations.fromSettings();
   final AuthService _authService = AuthService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -21,7 +25,6 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
-    // Перевіряємо статус адміна після логіну
     _checkAdminStatus();
   }
 
@@ -88,9 +91,24 @@ class _UserPageState extends State<UserPage> {
                 : 'Registration failed. Try again.';
       });
     } else {
-      await _checkAdminStatus(); // Оновлюємо статус адміна після логіну
-      Navigator.pop(context); // Повернення на попередню сторінку
+      await _checkAdminStatus();
+      Navigator.pop(context);
     }
+  }
+
+  void navigateToDetailPage(Peak peak) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => DetailPage(
+              peak: peak,
+              onLoginNeeded: () {
+                Navigator.pushNamed(context, '/user_page');
+              },
+            ),
+      ),
+    );
   }
 
   @override
@@ -107,7 +125,6 @@ class _UserPageState extends State<UserPage> {
           final User? user = snapshot.data;
 
           if (user == null) {
-            // Незалогінений користувач
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -179,45 +196,99 @@ class _UserPageState extends State<UserPage> {
             );
           }
 
-          // Залогінений користувач
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  user.displayName ?? user.email ?? 'User',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    user.displayName ?? user.email ?? 'User',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  user.email ?? 'No Email',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 16),
-                if (_isAdmin == true)
+                  const SizedBox(height: 8),
+                  Text(
+                    user.email ?? 'No Email',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  if (_isAdmin == true)
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/admin');
+                      },
+                      child: const Text('Open Admin Panel'),
+                    ),
+                  const SizedBox(height: 8),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/admin');
+                    onPressed: () async {
+                      await _authService.signOut();
+                      setState(() {
+                        _isAdmin = false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Signed out')),
+                      );
                     },
-                    child: const Text('Open Admin Panel'),
+                    child: const Text('Sign Out'),
                   ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _authService.signOut();
-                    setState(() {
-                      _isAdmin = false; // Скидаємо статус адміна
-                    });
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('Signed out')));
-                  },
-                  child: const Text('Sign Out'),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Favourite Peaks',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  StreamBuilder<List<Map<String, dynamic>>>(
+                    stream: dbOperations.favouritePeaksStream(user.uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            'Failed to load favourites',
+                            style: TextStyle(fontSize: 16, color: Colors.red),
+                          ),
+                        );
+                      }
+                      final favouriteData = snapshot.data ?? [];
+                      final favouritePeaks =
+                          favouriteData
+                              .map((map) => Peak.fromMap(map))
+                              .toList();
+                      if (favouritePeaks.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            'No favourite peaks yet',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        );
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: favouritePeaks.length,
+                        itemBuilder: (context, index) {
+                          final peak = favouritePeaks[index];
+                          return ListTile(
+                            title: Text(
+                              peak.name,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            onTap: () => navigateToDetailPage(peak),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         },
