@@ -6,7 +6,7 @@ import 'package:myflutter/pages/edit_page.dart';
 import 'package:myflutter/pages/view_page.dart';
 import 'package:myflutter/pages/admin_page.dart';
 import 'package:myflutter/models/peak.dart';
-import 'package:myflutter/pages/main_screen.dart';
+import 'package:myflutter/pages/home_page.dart';
 import 'package:myflutter/pages/user_page.dart';
 
 void main() async {
@@ -18,7 +18,12 @@ void main() async {
       initialRoute: '/',
       routes: {
         '/admin': (context) => const AdminPage(),
-        '/': (context) => const MainScreen(),
+        '/':
+            (context) => HomePage(
+              onLoginNeeded: () {
+                Navigator.pushNamed(context, '/user_page');
+              },
+            ),
         '/add': (context) => const AddPage(),
         '/edit':
             (context) => EditPage(
@@ -29,9 +34,7 @@ void main() async {
           return DetailPage(
             peak: peak,
             onLoginNeeded: () {
-              // Припускаємо, що MainScreen керує вкладками
-              Navigator.pushNamed(context, '/'); // Повернення до MainScreen
-              // Або зміна вкладки вручну, якщо потрібно
+              Navigator.pushNamed(context, '/user_page');
             },
           );
         },

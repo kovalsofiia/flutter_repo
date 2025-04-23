@@ -19,24 +19,47 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+    // Використовуємо StreamBuilder для відстеження стану авторизації
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.peak.name)),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Stack(
-              children: [
-                widget.peak.imagePath != null &&
-                        widget.peak.imagePath!.isNotEmpty
-                    ? Image.network(
-                      widget.peak.imagePath!,
-                      height: 300,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
+        final isLoggedIn = snapshot.data != null;
+
+        return Scaffold(
+          appBar: AppBar(title: Text(widget.peak.name)),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Stack(
+                  children: [
+                    widget.peak.imagePath != null &&
+                            widget.peak.imagePath!.isNotEmpty
+                        ? Image.network(
+                          widget.peak.imagePath!,
+                          height: 300,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 300,
+                              color: Colors.grey[300],
+                              child: Center(
+                                child: Icon(
+                                  Icons.image,
+                                  size: 50,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                        : Container(
                           height: 300,
                           color: Colors.grey[300],
                           child: Center(
@@ -46,93 +69,91 @@ class _DetailPageState extends State<DetailPage> {
                               color: Colors.grey[600],
                             ),
                           ),
-                        );
-                      },
-                    )
-                    : Container(
-                      height: 300,
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: Icon(
-                          Icons.image,
-                          size: 50,
-                          color: Colors.grey[600],
                         ),
+                    // Іконка сердечка у верхньому правому куті
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: StreamBuilder<bool>(
+                        stream: dbOperations.isFavourite(widget.peak.key!),
+                        initialData: false,
+                        builder: (context, snapshot) {
+                          final isFavourite = snapshot.data ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isFavourite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color:
+                                  isFavourite ? Colors.red[400] : Colors.grey,
+                              size: 20,
+                            ),
+                            onPressed: () async {
+                              if (!isLoggedIn) {
+                                widget.onLoginNeeded();
+                                return;
+                              }
+                              try {
+                                await dbOperations.toggleFavourite(
+                                  widget.peak.key!,
+                                );
+                                // Оновлення UI не потрібне, бо StreamBuilder автоматично реагує
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Error toggling favourite: $e',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                     ),
-                // Іконка сердечка у верхньому правому куті
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: StreamBuilder<bool>(
-                    stream: dbOperations.isFavourite(widget.peak.key!),
-                    initialData: false,
-                    builder: (context, snapshot) {
-                      final isFavourite = snapshot.data ?? false;
-                      return IconButton(
-                        icon: Icon(
-                          isFavourite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavourite ? Colors.red[400] : Colors.grey,
-                          size: 20,
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Name: ${widget.peak.name}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        onPressed: () {
-                          if (!isLoggedIn) {
-                            Navigator.pushNamed(context, '/user_page');
-                            return;
-                          }
-                          dbOperations.toggleFavourite(widget.peak.key!);
-                        },
-                        // onPressed: () {
-                        //   if (!isLoggedIn) {
-                        //     widget.onLoginNeeded();
-                        //     return;
-                        //   }
-                        //   dbOperations.toggleFavourite(widget.peak.key!);
-                        // },
-                      );
-                    },
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Elevation: ${widget.peak.elevation} m',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Location: ${widget.peak.location}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Description: ${widget.peak.description}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Popular: ${widget.peak.isPopular ? 'Yes' : 'No'}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'Name: ${widget.peak.name}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Elevation: ${widget.peak.elevation} m',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Location: ${widget.peak.location}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Description: ${widget.peak.description}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Popular: ${widget.peak.isPopular ? 'Yes' : 'No'}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
