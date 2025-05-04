@@ -98,8 +98,10 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder:
-            (context) =>
-                DetailPage(peak: peak, onLoginNeeded: widget.onLoginNeeded),
+            (context) => DetailPage(
+              peakId: peak.key!, // Передаємо peakId
+              onLoginNeeded: widget.onLoginNeeded,
+            ),
       ),
     );
     if (result is bool && result == true) {

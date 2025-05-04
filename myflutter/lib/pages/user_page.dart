@@ -109,7 +109,7 @@ class _UserPageState extends State<UserPage> {
       MaterialPageRoute(
         builder:
             (context) => DetailPage(
-              peak: peak,
+              peakId: peak.key!,
               onLoginNeeded: () {
                 Navigator.pushNamed(context, '/user_page');
               },

@@ -32,7 +32,7 @@ void main() async {
         '/view': (context) {
           final peak = ModalRoute.of(context)!.settings.arguments as Peak;
           return DetailPage(
-            peak: peak,
+            peakId: peak.key!,
             onLoginNeeded: () {
               Navigator.pushNamed(context, '/user_page');
             },
