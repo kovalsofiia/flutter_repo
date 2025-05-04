@@ -76,19 +76,22 @@ class _HomePageState extends State<HomePage> {
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final query = _searchController.text.toLowerCase();
       setState(() {
-        if (showPopular) {
-          filteredPopularPeaks =
-              popularPeaks
-                  .where((peak) => peak.name.toLowerCase().contains(query))
-                  .toList();
-          sortPopularPeaks();
-        } else {
-          filteredPeaks =
-              peaks
-                  .where((peak) => peak.name.toLowerCase().contains(query))
-                  .toList();
-          sortPeaks();
-        }
+        filteredPeaks =
+            peaks.where((peak) {
+              // Перевіряємо всі поля, враховуючи можливі null значення
+              final nameMatch = peak.name.toLowerCase().contains(query);
+              final elevationMatch = peak.elevation.toString().contains(query);
+              final locationMatch = peak.location.toLowerCase().contains(query);
+              final descriptionMatch = peak.description.toLowerCase().contains(
+                query,
+              );
+
+              // Вершина відповідає, якщо хоча б одне поле містить запит
+              return nameMatch ||
+                  elevationMatch ||
+                  locationMatch ||
+                  descriptionMatch;
+            }).toList();
       });
     });
   }

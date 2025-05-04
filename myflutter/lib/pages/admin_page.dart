@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myflutter/models/peak.dart';
 import 'package:myflutter/api/db_op.dart';
 import 'package:myflutter/services/auth_service.dart';
+import 'dart:async';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -12,14 +13,17 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   List<Peak> peaks = [];
+  List<Peak> filteredPeaks = []; // Додаємо список для відфільтрованих вершин
   final dbOperations = DbOperations.fromSettings();
   late bool isLoading;
-  String _searchQuery = '';
+  final TextEditingController _searchController =
+      TextEditingController(); // Контролер для пошуку
   String _sortColumn = ''; // Track the sorted column
   bool _sortAscending = true; // Track the sorting direction
-  final AuthService _authService = AuthService(); // Додаємо AuthService
-  bool _isAccessChecked = false; // Для перевірки доступу
-  bool _hasAccess = false; // Чи є доступ до адмін-панелі
+  final AuthService _authService = AuthService();
+  bool _isAccessChecked = false;
+  bool _hasAccess = false;
+  Timer? _debounce; // Для дебаунсингу
 
   @override
   void initState() {
@@ -27,7 +31,16 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       isLoading = true;
     });
-    _checkAdminAccess(); // Перевіряємо доступ
+    _checkAdminAccess();
+    // Додаємо слухача для текстового поля
+    _searchController.addListener(_filterPeaks);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkAdminAccess() async {
@@ -63,7 +76,7 @@ class _AdminPageState extends State<AdminPage> {
         );
       });
     } else {
-      loadPeaks(); // Завантажуємо вершини тільки для адмінів
+      loadPeaks();
     }
   }
 
@@ -74,6 +87,7 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       isLoading = false;
       peaks = loadedPeaks;
+      filteredPeaks = loadedPeaks; // Ініціалізуємо відфільтрований список
     });
     return loadedPeaks;
   }
@@ -82,6 +96,7 @@ class _AdminPageState extends State<AdminPage> {
     await dbOperations.removeElement(peak.key!);
     setState(() {
       peaks.remove(peak);
+      filteredPeaks.remove(peak); // Оновлюємо відфільтрований список
     });
   }
 
@@ -99,6 +114,33 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  // Метод для фільтрації вершин
+  void _filterPeaks() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      final query = _searchController.text.toLowerCase();
+      setState(() {
+        filteredPeaks =
+            peaks.where((peak) {
+              // Перевіряємо всі поля, враховуючи можливі null значення
+              final nameMatch = peak.name.toLowerCase().contains(query);
+              final elevationMatch = peak.elevation.toString().contains(query);
+              final locationMatch = peak.location.toLowerCase().contains(query);
+              final descriptionMatch = peak.description.toLowerCase().contains(
+                query,
+              );
+
+              // Вершина відповідає, якщо хоча б одне поле містить запит
+              return nameMatch ||
+                  elevationMatch ||
+                  locationMatch ||
+                  descriptionMatch;
+            }).toList();
+        _sortPeaks(_sortColumn); // Повторно застосовуємо сортування
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_isAccessChecked || isLoading) {
@@ -106,9 +148,7 @@ class _AdminPageState extends State<AdminPage> {
     }
 
     if (!_hasAccess) {
-      return const Scaffold(
-        body: Center(child: Text('Access Denied')),
-      ); // Не має спрацьовувати, бо перенаправлення вже відбулося
+      return const Scaffold(body: Center(child: Text('Access Denied')));
     }
 
     return Scaffold(
@@ -120,26 +160,19 @@ class _AdminPageState extends State<AdminPage> {
             Row(
               children: [
                 Expanded(
-                  // Make search field smaller
                   child: TextField(
+                    controller: _searchController, // Використовуємо контролер
                     decoration: const InputDecoration(
                       labelText: 'Search',
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
-                      ), // Smaller padding
-                      border: OutlineInputBorder(), // Add border
+                      ),
+                      border: OutlineInputBorder(),
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
                   ),
                 ),
-                const SizedBox(
-                  width: 10,
-                ), // Add spacing between search and button
+                const SizedBox(width: 10),
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () {
@@ -155,9 +188,11 @@ class _AdminPageState extends State<AdminPage> {
                   isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : ListView.builder(
-                        itemCount: peaks.length,
+                        itemCount:
+                            filteredPeaks
+                                .length, // Використовуємо filteredPeaks
                         itemBuilder: (context, index) {
-                          Peak peak = peaks[index];
+                          Peak peak = filteredPeaks[index];
                           return _buildDataRow(peak);
                         },
                       ),
@@ -173,7 +208,7 @@ class _AdminPageState extends State<AdminPage> {
       children: [
         _buildHeaderCell('Name', () => _sortPeaks('name')),
         _buildHeaderCell('Elevation', () => _sortPeaks('elevation')),
-        _buildHeaderCell('Location', null), // No sorting for location
+        _buildHeaderCell('Location', null),
         const Expanded(child: SizedBox()),
       ],
     );
@@ -239,7 +274,8 @@ class _AdminPageState extends State<AdminPage> {
 
   void _sortPeaks(String sortBy) {
     setState(() {
-      peaks.sort((a, b) {
+      filteredPeaks.sort((a, b) {
+        // Сортуємо filteredPeaks
         if (sortBy == 'name') {
           return _sortAscending
               ? a.name.compareTo(b.name)
@@ -251,6 +287,7 @@ class _AdminPageState extends State<AdminPage> {
         }
         return 0;
       });
+      _sortColumn = sortBy; // Оновлюємо поточну колонку сортування
     });
   }
 }
