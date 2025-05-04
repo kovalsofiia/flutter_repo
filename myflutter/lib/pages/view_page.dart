@@ -16,6 +16,35 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   final dbOperations = DbOperations.fromSettings();
+  Widget buildInfoRow({
+    required IconData icon,
+    required String label,
+    String? value,
+    bool bold = false,
+  }) {
+    final hasValue = value != null && value.trim().isNotEmpty;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: Colors.grey[700]),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              hasValue ? value : label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                color: hasValue ? Colors.black : Colors.grey,
+                fontStyle: hasValue ? FontStyle.normal : FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,32 +148,49 @@ class _DetailPageState extends State<DetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        'Name: ${widget.peak.name}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      buildInfoRow(
+                        icon: Icons.terrain,
+                        label: 'Name',
+                        value: widget.peak.name,
+                        bold: true,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Elevation: ${widget.peak.elevation} m',
-                        style: const TextStyle(fontSize: 16),
+                      buildInfoRow(
+                        icon: Icons.height,
+                        label: 'Elevation',
+                        value: '${widget.peak.elevation} m',
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Location: ${widget.peak.location}',
-                        style: const TextStyle(fontSize: 16),
+                      buildInfoRow(
+                        icon: Icons.location_on,
+                        label: 'Location',
+                        value: widget.peak.location,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Description: ${widget.peak.description}',
-                        style: const TextStyle(fontSize: 16),
+                      buildInfoRow(
+                        icon: Icons.description,
+                        label: 'Description',
+                        value: widget.peak.description,
                       ),
+
                       const SizedBox(height: 8),
-                      Text(
-                        'Popular: ${widget.peak.isPopular ? 'Yes' : 'No'}',
-                        style: const TextStyle(fontSize: 16),
+                      Row(
+                        children: [
+                          Icon(
+                            widget.peak.isPopular
+                                ? Icons.star
+                                : Icons.star_border,
+                            size: 24,
+                            color:
+                                widget.peak.isPopular
+                                    ? Colors.yellow
+                                    : Colors.grey,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            widget.peak.isPopular
+                                ? 'Popular peak'
+                                : 'Not popular',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
                       ),
                     ],
                   ),
