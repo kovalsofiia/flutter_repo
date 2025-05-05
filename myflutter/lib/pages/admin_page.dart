@@ -54,7 +54,7 @@ class _AdminPageState extends State<AdminPage> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please sign in to access the admin panel'),
+            content: Text('Увійдіть, щоб отримати доступ до адмін панелі'),
           ),
         );
       });
@@ -72,7 +72,7 @@ class _AdminPageState extends State<AdminPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You do not have admin access')),
+          const SnackBar(content: Text('У вас немає доступу до адмін панелі')),
         );
       });
     } else {
@@ -148,11 +148,11 @@ class _AdminPageState extends State<AdminPage> {
     }
 
     if (!_hasAccess) {
-      return const Scaffold(body: Center(child: Text('Access Denied')));
+      return const Scaffold(body: Center(child: Text('У доступі відмовлено')));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Peaks Admin')),
+      appBar: AppBar(title: const Text('Вершини Адмін Сторінка')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -163,7 +163,7 @@ class _AdminPageState extends State<AdminPage> {
                   child: TextField(
                     controller: _searchController, // Використовуємо контролер
                     decoration: const InputDecoration(
-                      labelText: 'Search',
+                      labelText: 'Пошук',
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
@@ -206,9 +206,9 @@ class _AdminPageState extends State<AdminPage> {
   Widget _buildHeaderRow() {
     return Row(
       children: [
-        _buildHeaderCell('Name', () => _sortPeaks('name')),
-        _buildHeaderCell('Elevation', () => _sortPeaks('elevation')),
-        _buildHeaderCell('Location', null),
+        _buildHeaderCell('Назва', () => _sortPeaks('name')),
+        _buildHeaderCell('Висота', () => _sortPeaks('elevation')),
+        _buildHeaderCell('Локація', null),
         const Expanded(child: SizedBox()),
       ],
     );

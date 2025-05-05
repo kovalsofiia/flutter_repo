@@ -195,20 +195,20 @@ class _HomePageState extends State<HomePage> {
         final isLoggedIn = snapshot.data != null;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Peaks'),
+            title: const Text('Вершини'),
             actions: [
               DropdownButton<String>(
                 value: _sortValue,
-                hint: const Text('Sort'),
+                hint: const Text('Сортувати'),
                 items: const [
-                  DropdownMenuItem(child: Text('A-Z'), value: 'a-z'),
-                  DropdownMenuItem(child: Text('Z-A'), value: 'z-a'),
+                  DropdownMenuItem(child: Text('А-Я'), value: 'a-z'),
+                  DropdownMenuItem(child: Text('Я-А'), value: 'z-a'),
                   DropdownMenuItem(
-                    child: Text('From highest to lowest'),
+                    child: Text('Від найвищої до найнижчої'),
                     value: '1-0',
                   ),
                   DropdownMenuItem(
-                    child: Text('From lowest to highest'),
+                    child: Text('Від найнижчої до найвищої'),
                     value: '0-1',
                   ),
                 ],
@@ -229,7 +229,7 @@ class _HomePageState extends State<HomePage> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search peaks...',
+                    hintText: 'Введіть пошукове слово',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon:
                         _searchController.text.isNotEmpty
@@ -420,17 +420,19 @@ class _HomePageState extends State<HomePage> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: toggleView,
-            label: Text(showPopular ? 'View All Peaks' : 'View Popular Peaks'),
+            label: Text(
+              showPopular ? 'Переглянути усі' : 'Переглянути популярні',
+            ),
             icon: Icon(showPopular ? Icons.list : Icons.star),
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
           bottomNavigationBar: BottomNavigationBar(
             items: [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Голова'),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),
-                label: 'Profile',
+                label: 'Профіль',
               ),
             ],
             currentIndex: 0, // Або динамічно

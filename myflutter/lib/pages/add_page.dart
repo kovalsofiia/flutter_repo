@@ -28,12 +28,12 @@ class _AddPageState extends State<AddPage> {
   List<String> _districts = [];
   Map<String, List<String>> _regionDistricts = {};
 
-  final String nameLabel = 'Name';
-  final String elevationLabel = 'Elevation (m)';
-  final String regionLabel = 'Select Region';
-  final String districtLabel = 'Select District';
-  final String imagePathLabel = 'Image Path (optional)';
-  final String descriptionLabel = 'Description';
+  final String nameLabel = 'Назва';
+  final String elevationLabel = 'Висота (m)';
+  final String regionLabel = 'Оберіть регіон';
+  final String districtLabel = 'Оберіть район';
+  final String imagePathLabel = 'Шлях для фото (optional)';
+  final String descriptionLabel = 'Опис';
 
   @override
   void initState() {
@@ -123,7 +123,7 @@ class _AddPageState extends State<AddPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
+                    return 'Введіть назву';
                   }
                   return null;
                 },
@@ -143,15 +143,15 @@ class _AddPageState extends State<AddPage> {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter elevation';
+                    return 'Введіть висоту';
                   }
                   final intElevation = int.tryParse(value);
 
                   if (intElevation == null) {
-                    return 'Please enter a valid number';
+                    return 'Введіть валідне число';
                   }
                   if (intElevation <= 0) {
-                    return 'Elevation must be greater than 0';
+                    return 'Висота гори має бути більша за 0';
                   }
                   return null;
                 },
@@ -189,7 +189,7 @@ class _AddPageState extends State<AddPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select a region';
+                    return 'Оберіть регіон';
                   }
                   return null;
                 },
@@ -224,22 +224,22 @@ class _AddPageState extends State<AddPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select a district';
+                    return 'Оберіть район';
                   }
                   return null;
                 },
               ),
               SizedBox(height: 16),
-              Text(imagePathLabel),
-              TextField(controller: imagePathController),
-              SizedBox(height: 16),
               Text(descriptionLabel),
               TextField(controller: descriptionController),
               SizedBox(height: 16),
+              Text(imagePathLabel),
+              SizedBox(height: 16),
+              TextField(controller: imagePathController),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Is Popular'),
+                  const Text('Популярна'),
                   Switch(
                     value: isPopular,
                     onChanged: (value) {
@@ -254,7 +254,7 @@ class _AddPageState extends State<AddPage> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: ElevatedButton(
-                  child: const Text('Add Peak'),
+                  child: const Text('Додати вершину'),
                   onPressed: () {
                     addPeak();
                   },

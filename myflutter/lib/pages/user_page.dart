@@ -161,7 +161,7 @@ class _UserPageState extends State<UserPage> {
                         child: TextField(
                           controller: _nameController,
                           decoration: InputDecoration(
-                            labelText: 'Name',
+                            labelText: 'Як вас звати',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -182,7 +182,7 @@ class _UserPageState extends State<UserPage> {
                     TextField(
                       controller: _passwordController,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Пароль',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -288,7 +288,7 @@ class _UserPageState extends State<UserPage> {
                         ),
                       ),
                       child: const Text(
-                        'Open Admin Panel',
+                        'Відкрити адмін панель',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -320,7 +320,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 const SizedBox(height: 25),
                 Text(
-                  'Favourite Peaks',
+                  'Улюблені вершини',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

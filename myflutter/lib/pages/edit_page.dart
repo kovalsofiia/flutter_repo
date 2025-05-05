@@ -52,7 +52,7 @@ class _EditPageState extends State<EditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Peak'),
+        title: Text('Редагування вершини'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
@@ -67,31 +67,31 @@ class _EditPageState extends State<EditPage> {
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: const InputDecoration(labelText: 'Назва'),
             ),
             TextField(
               controller: elevationController,
-              decoration: const InputDecoration(labelText: 'Elevation (m)'),
+              decoration: const InputDecoration(labelText: 'Висота (m)'),
               keyboardType: TextInputType.number,
             ),
             TextField(
               controller: locationController,
-              decoration: const InputDecoration(labelText: 'Location'),
+              decoration: const InputDecoration(labelText: 'Локація'),
             ),
             TextField(
               controller: descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: const InputDecoration(labelText: 'Опис'),
             ),
             TextField(
               controller: imagePathController,
               decoration: const InputDecoration(
-                labelText: 'Image Path (optional)',
+                labelText: 'Шлях для фото (optional)',
               ), // Зроблено optional
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Is Popular'),
+                const Text('Популярна'),
                 Switch(
                   value: isPopular,
                   onChanged: (value) {
@@ -103,7 +103,7 @@ class _EditPageState extends State<EditPage> {
               ],
             ),
             ElevatedButton(
-              child: const Text('Update Peak'),
+              child: const Text('Зберегти зміни'),
               onPressed: () {
                 updatePeak();
               },

@@ -178,23 +178,23 @@ class _DetailPageState extends State<DetailPage> {
                         children: <Widget>[
                           buildInfoRow(
                             icon: Icons.terrain,
-                            label: 'Name',
+                            label: 'Назва',
                             value: peak.name,
                             bold: true,
                           ),
                           buildInfoRow(
                             icon: Icons.height,
-                            label: 'Elevation',
+                            label: 'Висота',
                             value: '${peak.elevation} m',
                           ),
                           buildInfoRow(
                             icon: Icons.location_on,
-                            label: 'Location',
+                            label: 'Локація',
                             value: peak.location,
                           ),
                           buildInfoRow(
                             icon: Icons.description,
-                            label: 'Description',
+                            label: 'Опис',
                             value: peak.description,
                           ),
                           const SizedBox(height: 8),
@@ -210,7 +210,9 @@ class _DetailPageState extends State<DetailPage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                peak.isPopular ? 'Popular peak' : 'Not popular',
+                                peak.isPopular
+                                    ? 'Популярна вершина'
+                                    : 'Непопулярна вершина',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ],
