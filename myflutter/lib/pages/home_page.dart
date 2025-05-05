@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Використовується для реалізації затримки перед виконанням пошуку при введенні тексту, щоб зменшити кількість непотрібних запитів.
   Timer? _debounce;
 
   List<Peak> peaks = [];
@@ -27,11 +28,13 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  // Метод життєвого циклу віджета, який викликається один раз при створенні стану.
   void initState() {
     super.initState();
   }
 
   @override
+  // Метод життєвого циклу, який викликається при видаленні стану віджета.
   void dispose() {
     _debounce?.cancel();
     _searchController.dispose();
