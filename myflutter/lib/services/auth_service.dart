@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myflutter/models/AppUser.dart'; // Імпорт моделі
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -26,13 +27,17 @@ class AuthService {
           await userCredential.user!.updateDisplayName(displayName);
           await userCredential.user!.reload();
         }
-        // Створити профіль у Firestore
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'email': email,
-          'displayName': displayName,
-          'isAdmin': false, // За замовчуванням не адмін
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+        // Створити профіль у Firestore за допомогою моделі AppUser
+        final appUser = AppUser(
+          uid: userCredential.user!.uid,
+          email: email,
+          displayName: displayName,
+          isAdmin: false,
+        );
+        await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set(appUser.toFirestore());
       }
       return userCredential.user;
     } catch (e) {
@@ -62,10 +67,28 @@ class AuthService {
   Future<bool> isAdmin(String uid) async {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
-      return doc.exists && (doc.data()?['isAdmin'] ?? false);
+      if (doc.exists) {
+        final appUser = AppUser.fromFirestore(doc);
+        return appUser.isAdmin;
+      }
+      return false;
     } catch (e) {
       print('Error checking admin status: $e');
       return false;
+    }
+  }
+
+  // Отримання профілю користувача
+  Future<AppUser?> getUserProfile(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        return AppUser.fromFirestore(doc);
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      return null;
     }
   }
 }
