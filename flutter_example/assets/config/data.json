@@ -1,0 +1,27 @@
+{
+    "title": "List of faculties",
+    "btnTitle": "Option for later: router",
+    "items": [
+      {
+        "id": "p1",
+        "name": "ФМТЦ",
+        "description": "Факультет математики"
+      },
+      {
+        "id": "p2",
+        "name": "МЕВ",
+        "description": "Факультет міжнародних відносин"
+      },
+      {
+        "id": "p3",
+        "name": "ІТФ",
+        "description": "Інженерно-технічний Факульте "
+      },
+      {
+        "id": "p4",
+        "name": "ФІЗИЧНИЙ",
+        "description": "Фізичний Факультет"
+      }
+    ]
+  }
+  

@@ -1,0 +1,24 @@
+{
+    "title": "List of students",
+    "items": [
+      {
+        "id": "st1",
+        "name": "Коваль Софія Олександрівна",
+        "course": "3",
+        "averageScore": "90.2"
+      },
+      {
+        "id": "st2",
+        "name": "Андрусик Вероніка",
+        "course": "3",
+        "averageScore": "95.3"
+      },
+      {
+        "id": "st3",
+        "name": "Новікова Руслана",
+        "course": "3",
+        "averageScore": "95.7"
+      }
+    ]
+  }
+  
