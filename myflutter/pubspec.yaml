@@ -25,4 +25,5 @@ flutter:
   uses-material-design: true
   assets:
   - assets/default.png
+  - assets/def-item.png
   - assets/regions_ukr.json
