@@ -12,6 +12,8 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController nameController = TextEditingController();
   TextEditingController birthYearController = TextEditingController();
   TextEditingController mobileNumberController = TextEditingController();
@@ -31,16 +33,21 @@ class _EditPageState extends State<EditPage> {
   }
 
   void updateItem() async {
-    Item item = Item(
-      key: widget.item.key,
-      name: nameController.text,
-      birthYear: birthYearController.text,
-      mobileNumber: mobileNumberController.text,
-      cellularNumber: cellularNumberController.text,
-      imagePath: imagePathController.text,
-    );
-    await dbOperations.updateElement(item.key!, item.toMap());
-    Navigator.pop(context, true);
+    if (_formKey.currentState!.validate()) {
+      Item item = Item(
+        key: widget.item.key,
+        name: nameController.text.trim(),
+        birthYear: birthYearController.text.trim(),
+        mobileNumber: mobileNumberController.text.trim(),
+        cellularNumber: cellularNumberController.text.trim(),
+        imagePath:
+            imagePathController.text.trim().isEmpty
+                ? null
+                : imagePathController.text.trim(),
+      );
+      await dbOperations.updateElement(item.key!, item.toMap());
+      Navigator.pop(context, true);
+    }
   }
 
   @override
@@ -73,105 +80,120 @@ class _EditPageState extends State<EditPage> {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.blue[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: _inputDecoration('ПІБ'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'ПІБ є обовʼязковим';
+                      }
+                      final words = value.trim().split(RegExp(r'\s+'));
+                      if (words.length < 3) {
+                        return 'Введіть повне ПІБ';
+                      }
+                      if (!RegExp(
+                        r"^[А-ЩЬЮЯЄІЇа-щьюяєії'\- ]+$",
+                      ).hasMatch(value)) {
+                        return 'ПІБ має містити лише українські літери';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: birthYearController,
+                    decoration: _inputDecoration('Рік народження'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Рік народження is required';
+                      }
+                      final year = int.tryParse(value);
+                      if (year == null ||
+                          year < 1900 ||
+                          year > DateTime.now().year) {
+                        return 'Введіть коректний рік народження (1900 - 2025)';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: mobileNumberController,
+                    decoration: _inputDecoration(
+                      'Номер стільникового телефону',
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue[700]!),
-                      borderRadius: BorderRadius.circular(12),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Номер стільникового телефону is required';
+                      }
+                      if (!RegExp(r'^\+?\d{10,13}$').hasMatch(value)) {
+                        return 'Введіть коректний номер стільникового телефону(+380501112233)';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: cellularNumberController,
+                    decoration: _inputDecoration('Номер мобільного телефону'),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Номер мобільного телефону is required';
+                      }
+                      if (!RegExp(r'^\+?\d{10,13}$').hasMatch(value)) {
+                        return 'Введіть коректний Номер мобільного телефону (+380501112233)';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: imagePathController,
+                    decoration: _inputDecoration('Image Path (optional)'),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 14,
+                      ),
+                    ),
+                    onPressed: updateItem,
+                    child: const Text(
+                      'Update Item',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: birthYearController,
-                  decoration: InputDecoration(
-                    labelText: 'Birth Year',
-                    labelStyle: TextStyle(color: Colors.blue[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue[700]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: mobileNumberController,
-                  decoration: InputDecoration(
-                    labelText: 'Mobile Number',
-                    labelStyle: TextStyle(color: Colors.blue[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue[700]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: cellularNumberController,
-                  decoration: InputDecoration(
-                    labelText: 'Cellular Number',
-                    labelStyle: TextStyle(color: Colors.blue[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue[700]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: imagePathController,
-                  decoration: InputDecoration(
-                    labelText: 'Image Path (optional)',
-                    labelStyle: TextStyle(color: Colors.blue[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue[700]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 14,
-                    ),
-                  ),
-                  onPressed: updateItem,
-                  child: const Text(
-                    'Update Item',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.blue[800]),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.blue[700]!),
+        borderRadius: BorderRadius.circular(12),
       ),
     );
   }

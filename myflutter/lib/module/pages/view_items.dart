@@ -41,6 +41,9 @@ class _HomePageState extends State<HomePage> {
     await dbOperations.removeElement(item.key!);
     setState(() {
       items.remove(item);
+      filterItems(
+        _searchController.text,
+      ); // оновити filteredItems після видалення
     });
   }
 
