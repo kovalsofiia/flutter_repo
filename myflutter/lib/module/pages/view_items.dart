@@ -11,8 +11,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Item> items = [];
+  List<Item> filteredItems = [];
+
   final dbOperations = DbOperations.fromSettings();
   late bool isLoading;
+
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -28,6 +32,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isLoading = false;
       items = loadedItems;
+      filteredItems = loadedItems;
     });
     return loadedItems;
   }
@@ -60,6 +65,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void filterItems(String query) {
+    final lowerQuery = query.toLowerCase();
+    setState(() {
+      if (lowerQuery.isEmpty) {
+        filteredItems = List.from(items); // показати повний список
+      } else {
+        filteredItems =
+            items.where((item) {
+              return item.name.toLowerCase().contains(lowerQuery) ||
+                  item.birthYear.toString().contains(lowerQuery) ||
+                  item.mobileNumber.toLowerCase().contains(lowerQuery) ||
+                  item.cellularNumber.toLowerCase().contains(lowerQuery) ||
+                  (item.imagePath ?? '').toLowerCase().contains(lowerQuery);
+            }).toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,107 +100,132 @@ class _HomePageState extends State<HomePage> {
           IconButton(icon: const Icon(Icons.add), onPressed: navigateToAddPage),
         ],
       ),
-      body: Center(
-        child:
-            isLoading
-                ? const CircularProgressIndicator()
-                : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    Item item = items[index];
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      color: Colors.blue[50],
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(12),
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child:
-                              item.imagePath != null &&
-                                      item.imagePath!.isNotEmpty
-                                  ? Image.network(
-                                    item.imagePath!,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : Image.asset(
-                                    'assets/def-item.png',
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  ),
-                        ),
-                        title: Text(
-                          item.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.blue[900],
-                          ),
-                        ),
-                        onTap: () => navigateToViewPage(item),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              color: Colors.blue[800],
-                              onPressed: () => navigateToEditPage(item),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              color: Colors.red,
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder:
-                                      (context) => AlertDialog(
-                                        title: const Text('Confirm Deletion'),
-                                        content: const Text(
-                                          'Are you sure you want to delete this item?',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.pop(context),
-                                            child: const Text('Cancel'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              removeItem(item);
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Item removed'),
-                                                ),
-                                              );
-                                            },
-                                            child: const Text(
-                                              'Delete',
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Пошук...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
+                fillColor: Colors.white,
+                filled: true,
+              ),
+              onChanged: (value) => filterItems(value),
+            ),
+          ),
+          Expanded(
+            child:
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filteredItems.length,
+                      itemBuilder: (context, index) {
+                        Item item = filteredItems[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          color: Colors.blue[50],
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(12),
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child:
+                                  item.imagePath != null &&
+                                          item.imagePath!.isNotEmpty
+                                      ? Image.network(
+                                        item.imagePath!,
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      )
+                                      : Image.asset(
+                                        'assets/def-item.png',
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      ),
+                            ),
+                            title: Text(
+                              item.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.blue[900],
+                              ),
+                            ),
+                            onTap: () => navigateToViewPage(item),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  color: Colors.blue[800],
+                                  onPressed: () => navigateToEditPage(item),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: const Text(
+                                              'Confirm Deletion',
+                                            ),
+                                            content: const Text(
+                                              'Are you sure you want to delete this item?',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.pop(context),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  removeItem(item);
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Item removed',
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const Text(
+                                                  'Delete',
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+          ),
+        ],
       ),
     );
   }

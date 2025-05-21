@@ -13,6 +13,9 @@ class EditPage extends StatefulWidget {
 
 class _EditPageState extends State<EditPage> {
   TextEditingController nameController = TextEditingController();
+  TextEditingController birthYearController = TextEditingController();
+  TextEditingController mobileNumberController = TextEditingController();
+  TextEditingController cellularNumberController = TextEditingController();
   TextEditingController imagePathController = TextEditingController();
 
   final dbOperations = DbOperations.fromSettings();
@@ -21,6 +24,9 @@ class _EditPageState extends State<EditPage> {
   void initState() {
     super.initState();
     nameController.text = widget.item.name;
+    birthYearController.text = widget.item.birthYear;
+    mobileNumberController.text = widget.item.mobileNumber;
+    cellularNumberController.text = widget.item.cellularNumber;
     imagePathController.text = widget.item.imagePath ?? '';
   }
 
@@ -28,6 +34,9 @@ class _EditPageState extends State<EditPage> {
     Item item = Item(
       key: widget.item.key,
       name: nameController.text,
+      birthYear: birthYearController.text,
+      mobileNumber: mobileNumberController.text,
+      cellularNumber: cellularNumberController.text,
       imagePath: imagePathController.text,
     );
     await dbOperations.updateElement(item.key!, item.toMap());
@@ -71,6 +80,51 @@ class _EditPageState extends State<EditPage> {
                   controller: nameController,
                   decoration: InputDecoration(
                     labelText: 'Name',
+                    labelStyle: TextStyle(color: Colors.blue[800]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue[700]!),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: birthYearController,
+                  decoration: InputDecoration(
+                    labelText: 'Birth Year',
+                    labelStyle: TextStyle(color: Colors.blue[800]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue[700]!),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: mobileNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Mobile Number',
+                    labelStyle: TextStyle(color: Colors.blue[800]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue[700]!),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: cellularNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Cellular Number',
                     labelStyle: TextStyle(color: Colors.blue[800]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

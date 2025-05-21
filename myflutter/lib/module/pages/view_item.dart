@@ -61,7 +61,7 @@ class DetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      item.name,
+                      'More information about: ${item.name}',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -72,9 +72,38 @@ class DetailPage extends StatelessWidget {
                     const Divider(),
                     const SizedBox(height: 10),
                     Text(
-                      'More information can go here.',
-                      style: TextStyle(fontSize: 16, color: Colors.blue[800]),
+                      'Birth year: ${item.birthYear}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[900],
+                      ),
                     ),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Mobile number: ${item.mobileNumber}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[900],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Cellular number: ${item.cellularNumber}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[900],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
